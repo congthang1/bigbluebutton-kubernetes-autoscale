@@ -45,9 +45,9 @@ data:
   # SECRETS
   # ====================================
   # important! change these to any random values
-  SHARED_SECRET: oJaKkQqzUHwx2Mk30PnprujmsZFBumBLDqM0sqlf
-  ETHERPAD_API_KEY: dl9yxc9dIkl1iLaoFrzn9IpLul7epN9fjyixdDUM
-  RAILS_SECRET: d9695ec0efa13adee0627d4a8a906094463facb29bf3646c5274f704689b002319b833513329d437c7752614cab651dc6c36a70d3575a0f7e96e4b101faf7a8b
+  SHARED_SECRET: oJaKkQqzUHwx2Mk30PnprujmsZFBumBLDqM0sqlf  # <<update this>>
+  ETHERPAD_API_KEY: dl9yxc9dIkl1iLaoFrzn9IpLul7epN9fjyixdDUM # <<update this>>
+  RAILS_SECRET: d9695ec0efa13adee0627d4a8a906094463facb29bf3646c5274f704689b002319b833513329d437c7752614cab651dc6c36a70d3575a0f7e96e4b101faf7a8b # <<update this>>
 
 
 
@@ -55,9 +55,9 @@ data:
   # CONNECTION
   # ====================================
 
-  DOMAIN: courseminar1.yourdomain.com
+  DOMAIN: hostname1.yourdomain.com # <<update this>> nomatter how it is
   setDomainScript: |
-    EXPORT DOMAIN=${HOSTNAME}.yourdomain.com>>/etc/profile
+    export DOMAIN=${HOSTNAME}.yourdomain.com>>/etc/profile
 
   EXTERNAL_IPv4: "1.2.3.4" #this is fine dont need to change
   EXTERNAL_IPv6: "::1"
