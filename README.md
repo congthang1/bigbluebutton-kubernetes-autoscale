@@ -4,7 +4,7 @@ This is using Bigbluebutton Docker Version: 2.3.0 | [Changelog](CHANGELOG.md) | 
 
 - search for "your_docker_repo_name" and update to your docker image
 - search for yourdomain.com and update to your domain
-- search for <<update this>> and update your value.
+- search for \<\<update this\>\> and update your value.
 - Build your own docker pulling from https://github.com/bigbluebutton/docker/
 - run ./deploy.sh
   
