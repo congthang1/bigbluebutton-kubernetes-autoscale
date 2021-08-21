@@ -1,0 +1,3 @@
+FROM valian/docker-nginx-auto-ssl
+COPY ./site-ipv4only.conf /etc/nginx/conf.d/bbb-docker.conf
+

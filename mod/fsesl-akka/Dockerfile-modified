@@ -1,0 +1,8 @@
+FROM your_docker_repo_name/bbb-docker_fsesl-akka:2.3
+COPY bbb-fsesl-akka.conf /etc/bigbluebutton/bbb-fsesl-akka.conf.tmpl
+COPY logback.xml /bbb-fsesl-akka/conf/logback.xml
+
+WORKDIR /bbb-fsesl-akka
+CMD dockerize \
+    -template /etc/bigbluebutton/bbb-fsesl-akka.conf.tmpl:/etc/bigbluebutton/bbb-fsesl-akka.conf \
+    gosu fsesl-akka /bbb-fsesl-akka/bin/bbb-fsesl-akka

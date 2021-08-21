@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bbb
+  labels:
+    name: bbb
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: bbb
+  name: mongo-config
+data:
+  mongod.conf: |
+    # mongod.conf
+
+    # for documentation of all options, see:
+    #   http://docs.mongodb.org/manual/reference/configuration-options/
+
+    storage:
+      dbPath: /data/db
+      journal:
+        enabled: true
+      wiredTiger:
+        engineConfig:
+            cacheSizeGB: 0
+            journalCompressor: none
+            directoryForIndexes: true
+        collectionConfig:
+            blockCompressor: none
+        indexConfig:
+            prefixCompression: false
+
+
+    net:
+      port: 27017
+      bindIp: 0.0.0.0
+
+
+    replication:
+      replSetName: rs0
+
+    setParameter:
+      diagnosticDataCollectionEnabled: false
+  init-replica.sh: |
+    #!/bin/sh
+    set -e
+
+
+    host=${HOSTNAME:-$(hostname -f)}
+
+    # init replset with defaults
+    mongo local --eval "rs.initiate({
+      _id: 'rs0',
+      members: [ { _id: 0, host: '127.0.0.1:27017' } ]
+    })"
+
+    echo "Waiting to become a master"
+    echo 'while (!db.isMaster().ismaster) { sleep(100); }' | mongo
+
+    echo "I'm the master!"
+      

@@ -1,0 +1,8 @@
+FROM  your_docker_repo_name/bbb-docker_apps-akka:2.3
+COPY bbb-apps-akka.conf /etc/bigbluebutton/bbb-apps-akka.conf.tmpl
+COPY logback.xml /bbb-apps-akka/conf/logback.xml
+
+WORKDIR /bbb-apps-akka
+CMD dockerize \
+    -template /etc/bigbluebutton/bbb-apps-akka.conf.tmpl:/etc/bigbluebutton/bbb-apps-akka.conf \
+    gosu bigbluebutton /bbb-apps-akka/bin/bbb-apps-akka

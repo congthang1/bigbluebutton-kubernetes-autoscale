@@ -1,0 +1,487 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: bbb
+  namespace: bbb
+spec:
+  serviceName: "bbb" #Do not use '-' in name.
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bbb
+  template:
+    metadata:
+      labels:
+        app: bbb
+    spec:
+      hostNetwork: true
+      hostAliases:
+      - ip: "127.0.0.1"
+        hostnames:
+        - "mongodb"
+        - "redis"
+        - "bbb-web"
+        - "bbb-freeswitch"
+        - "bbb-webrtc-sfu"
+        - "bbb-nginx"
+        - "bbb-fsesl-akka"
+        - "fsesl-akka"
+        - "bbb-jodconverter"
+        - "bbb-periodic"
+        - "host.docker.internal"
+        - "html5"
+        - "etherpad"
+        - "webrtc-sfu"
+        - "jodconverter"
+        - "bbb-apps-akka"
+        - "apps-akka"
+      containers:  
+        - name: bbb-html5-backend
+          image: your_docker_repo_name/bbb-html5:2.4
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DOMAIN
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: DOMAIN
+            - name: CLIENT_TITLE
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: CLIENT_TITLE
+            - name: ETHERPAD_API_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: ETHERPAD_API_KEY
+            - name: LISTEN_ONLY_MODE
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: LISTEN_ONLY_MODE
+            - name: DISABLE_ECHO_TEST
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: DISABLE_ECHO_TEST
+            - name: AUTO_SHARE_WEBCAM
+              value: "false"
+            - name: DISABLE_VIDEO_PREVIEW
+              value: "false"
+            - name: CHAT_ENABLED
+              value: "true"
+            - name: CHAT_START_CLOSED
+              value: "false"
+            - name: BREAKOUTROOM_LIMIT
+              value: "8"
+            - name: DEV_MODE
+              value: "-"
+            - name: BBB_HTML5_ROLE
+              value: backend
+            - name: PORT
+              value: "4000"
+            - name: INSTANCE_ID
+              value: "1"
+            - name: MONGO_OPLOG_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: MONGO_OPLOG_URL
+            - name: MONGO_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: MONGO_URL
+          
+        - name: bbb-html5-frontend
+          image: your_docker_repo_name/bbb-html5:2.4
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DOMAIN
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: DOMAIN
+            - name: CLIENT_TITLE
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: CLIENT_TITLE
+            - name: ETHERPAD_API_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: ETHERPAD_API_KEY
+            - name: LISTEN_ONLY_MODE
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: LISTEN_ONLY_MODE
+            - name: DISABLE_ECHO_TEST
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: DISABLE_ECHO_TEST
+            - name: AUTO_SHARE_WEBCAM
+              value: "false"
+            - name: DISABLE_VIDEO_PREVIEW
+              value: "false"
+            - name: CHAT_ENABLED
+              value: "true"
+            - name: CHAT_START_CLOSED
+              value: "false"
+            - name: BREAKOUTROOM_LIMIT
+              value: "8"
+            - name: DEV_MODE
+              value: "-"
+            - name: BBB_HTML5_ROLE
+              value: frontend
+            - name: INSTANCE_ID
+              value: "1"
+            - name: PORT
+              value: "4100"
+            - name: MONGO_OPLOG_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: MONGO_OPLOG_URL
+            - name: MONGO_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: MONGO_URL
+          resources: {}
+          volumeMounts:
+            - mountPath: /html5-static
+              name: bbb-volume
+          
+        - name: bbb-web
+          image: your_docker_repo_name/bbb-docker_bbb-web:2.4
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+                - wget --no-verbose --tries=1 --spider http://271.0.0.1:8090/bigbluebutton/api || exit 1
+            initialDelaySeconds: 120
+          
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/bigbluebutton
+              name: bbb-volume
+            - mountPath: /var/freeswitch/meetings
+              name: bbb-volume
+            - mountPath: /var/kurento
+              name: bbb-volume
+          env:
+            - name: DOMAIN
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: DOMAIN
+            - name: SHARED_SECRET
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: SHARED_SECRET
+            - name: DEV_MODE
+              value: "false"
+            - name: ENABLE_RECORDING
+              value: "false"
+            - name: WELCOME_MESSAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: WELCOME_MESSAGE
+            - name: WELCOME_FOOTER
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: WELCOME_FOOTER 
+            - name: STUN_SERVER
+              value: stun:216.93.246.18:3478
+            # - name: TURN_SERVER
+            #   value: "-"
+            # - name: TURN_SECRET
+            #   value: "-"
+            - name: NUMBER_OF_BACKEND_NODEJS_PROCESSES
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: NUMBER_OF_BACKEND_NODEJS_PROCESSES
+        - name: bbb-freeswitch
+          image: your_docker_repo_name/bbb-docker_freeswitch:2.4
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DOMAIN
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: DOMAIN
+            - name: EXTERNAL_IPv6
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: EXTERNAL_IPv6
+            - name: EXTERNAL_IPv4
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: EXTERNAL_IPv4
+            - name: ESL_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: FSESL_PASSWORD
+            # - name: SIP_IP_ALLOWLIST
+            #   value: "-"
+            - name: DISABLE_SOUND_MUTED
+              value: "true"
+            - name: DISABLE_SOUND_ALONE
+              value: "true"
+            - name: SOUNDS_LANGUAGE
+              value: en-us-callie
+          resources: {}
+          securityContext:
+            capabilities:
+              add:
+                - IPC_LOCK
+                - NET_ADMIN
+                - NET_RAW
+                - NET_BROADCAST
+                - SYS_NICE
+                - SYS_RESOURCE
+          volumeMounts:
+            - mountPath: /etc/freeswitch/sip_profiles/external
+              name: bbb-volume
+            - mountPath: /etc/freeswitch/dialplan/public_docker
+              name: bbb-volume
+            - mountPath: /var/freeswitch/meetings
+              name: bbb-volume
+        - name: bbb-nginx
+          image: your_docker_repo_name/bbb-docker_nginx:2.3
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - mountPath: /var/bigbluebutton
+              name: bbb-volume
+            - mountPath: /html5-static
+              name: bbb-volume
+              readOnly: true
+            - mountPath: /www/
+              name: bbb-volume
+          ports:
+            - containerPort: 8080
+        - name: etherpad
+          image: your_docker_repo_name/bbb-docker_etherpad:2.4
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: ETHERPAD_API_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: ETHERPAD_API_KEY
+          ports:
+            - containerPort: 9001
+        - name: redis
+          image: redis:6.2-alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 6379
+        - name: kurento
+          image: kurento/kurento-media-server:6.16
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              cpu: "2000m"
+            requests:
+              cpu: "1800m"
+          env:
+            - name: KMS_STUN_IP
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: STUN_IP
+            - name: KMS_STUN_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: STUN_PORT
+            - name: KMS_MIN_PORT
+              value: "31000"
+            - name: KMS_MAX_PORT
+              value: "32768"
+            - name: KMS_TURN_URL
+              value:
+            # - name: KMS_NETWORK_INTERFACES
+            #   value: "-"
+            - name: GST_DEBUG
+              value: 3,Kurento*:4,kms*:4,KurentoWebSocketTransport:5
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/kurento
+              name: bbb-volume
+        - name: bbb-webrtc-sfu  
+          image: your_docker_repo_name/bbb-docker_webrtc-sfu:2.4
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: CLIENT_HOST
+              value: "0.0.0.0"
+            - name: KURENTO_NAME
+              value: kurento
+            - name: REDIS_HOST
+              value: redis
+            - name: FREESWITCH_IP
+              value: host.docker.internal
+            - name: FREESWITCH_SIP_IP
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: EXTERNAL_IPv4
+            - name: EXTERNAL_IPv4
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: EXTERNAL_IPv4
+            - name: ESL_IP
+              value: host.docker.internal
+            - name: ESL_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: FSESL_PASSWORD
+            - name: LOG_LEVEL
+              value: info
+            - name: NODE_CONFIG
+              value: '{"kurento":[{"ip":"159.65.138.253","url":"ws://127.0.0.1:8888/kurento"}]}'
+          ports:
+            - containerPort: 3008
+        - name: bbb-fsesl-akka
+          image: your_docker_repo_name/bbb-docker_fsesl-akka:2.3
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: FSESL_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: FSESL_PASSWORD
+        - name: bbb-apps-akka
+          image: your_docker_repo_name/bbb-docker_apps-akka:2.4
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DOMAIN
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: DOMAIN
+            - name: SHARED_SECRET
+              valueFrom:
+                configMapKeyRef:
+                  name: bbb-config
+                  key: SHARED_SECRET
+          volumeMounts:
+            - mountPath: /var/freeswitch/meetings
+              name: bbb-volume
+        - name: bbb-jodconverter
+          image: your_docker_repo_name/bbb-docker_jodconverter:2.3
+          imagePullPolicy: IfNotPresent
+        - name: bbb-periodic
+          image: your_docker_repo_name/bbb-docker_periodic:2.3
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - mountPath: /var/bigbluebutton
+              name: bbb-volume
+        # - name: bbb-recordings
+        #   image: your_docker_repo_name/bbb-docker_recordings:2.3
+        #   imagePullPolicy: IfNotPresent
+        #   volumeMounts:
+        #     - mountPath: /var/bigbluebutton
+        #       name: bbb-volume
+        #     - mountPath: /var/freeswitch/meetings
+        #       name: bbb-volume
+        #     - mountPath: /var/kurento
+        #       name: bbb-volume
+        #     - mountPath: /var/log/bigbluebutton
+        #       name: recordings-tmpfs0
+        #     - mountPath: /tmp
+        #       name: recordings-tmpfs1
+        - name: https-proxy
+          image: your_docker_repo_name/bbb-docker_https-proxy:2.3
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: ALLOWED_DOMAINS
+              value: ""
+          volumeMounts:
+            - mountPath: /etc/resty-auto-ssl
+              name: ssl-volume
+        - name: mongodb
+          image: mongo:4.4
+          ports:
+            - containerPort: 27017
+          imagePullPolicy: IfNotPresent
+          args:
+            - mongod
+            - --config
+            - /etc/mongod.conf
+            - --oplogSize
+            - "8"
+            - --replSet
+            - rs0
+            - --noauth
+          livenessProbe:
+            exec:
+              command:
+                - bash -c "if mongo --eval 'quit(db.runCommand({ ping':' 1 }).ok ? 0 ':' 2)'; then exit 0; fi; exit 1;"
+          resources: {}
+          volumeMounts:
+            - mountPath: /data/configdb
+              name: mongodb-tmpfs0
+            - mountPath: /data/db
+              name: mongodb-tmpfs1
+            - name: mongo-config
+              mountPath: /etc/mongod.conf
+              subPath: mongod.conf
+            - name: mongo-config
+              mountPath: /docker-entrypoint-initdb.d/init-replica.sh
+              subPath: init-replica.sh
+      restartPolicy: Always
+      volumes:
+        - name: bbb-volume
+          hostPath:
+            path: /var/bbb-volume
+            type: DirectoryOrCreate
+          # persistentVolumeClaim:
+          #   claimName: bbb-volume
+        - emptyDir:
+            medium: Memory
+          name: mongodb-tmpfs0
+        - emptyDir:
+            medium: Memory
+          name: mongodb-tmpfs1
+        - emptyDir:
+            medium: Memory
+          name: recordings-tmpfs0
+        - emptyDir:
+            medium: Memory
+          name: recordings-tmpfs1
+        - emptyDir:
+            medium: Memory
+          name: resty-auto-ssl
+          # directory location on host
+        - name: ssl-volume
+          hostPath:
+            path: /var/resty-auto-ssl
+            type: DirectoryOrCreate
+        - name: mongo-config
+          configMap:
+            defaultMode: 0777
+            name: mongo-config
+            items:
+            - key: mongod.conf
+              path: mongod.conf
+            - key: init-replica.sh
+              path: init-replica.sh
+        
+          
+          
+           
+        

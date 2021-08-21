@@ -1,0 +1,6 @@
+FROM your_docker_repo_name/bbb-docker_apps-akka:2.3
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
+
+USER webrtc-sfu
+ENTRYPOINT [ "./docker-entrypoint.sh" ]
+CMD [ "npm", "start" ]

@@ -1,0 +1,2 @@
+FROM your_docker_repo_name/bbb-docker_jodconverter:2.3
+COPY ./application.properties /etc/app/application.properties
