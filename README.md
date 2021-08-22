@@ -1,11 +1,11 @@
 # 📦 Bigbluebutton on Kubernetes automatic scale
 
-This is using Bigbluebutton Docker Version: 2.3.0 | [Changelog](CHANGELOG.md) | [Issues](https://github.com/bigbluebutton/docker/issues)
+This is using Bigbluebutton Docker Version: 2.3.0 | [Bigbluebutton Docker](https://github.com/bigbluebutton/docker/)
 
 - search for "your_docker_repo_name" and update to your docker image
+- Build your own dockers on /mod
 - search for yourdomain.com and update to your domain
-- search for \<\<update this\>\> and update your value.
-- Build your own docker pulling from https://github.com/bigbluebutton/docker/
+- search for \<\<update this\>\> and update your value. 
 - run ./deploy.sh
   
 Each scaled bbb instance will have the domain ${HOSTNAME}.yourdomain.com so make scripts to update record set of domain to it.
