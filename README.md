@@ -2,8 +2,8 @@
 
 This is using Bigbluebutton Docker Version: 2.3.0 | [Bigbluebutton Docker](https://github.com/bigbluebutton/docker/)
 
-- search for "your_docker_repo_name" and update to your docker image
 - Build your own dockers on /mod
+- search for "your_docker_repo_name" and update to your docker image
 - search for yourdomain.com and update to your domain
 - search for \<\<update this\>\> and update your value. 
 - run ./deploy.sh
