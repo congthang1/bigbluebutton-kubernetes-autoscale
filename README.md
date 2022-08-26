@@ -11,8 +11,8 @@ This is using Bigbluebutton Docker Version: 2.3.0 | [Bigbluebutton Docker](https
 Each scaled bbb instance will have the domain ${HOSTNAME}.yourdomain.com so make scripts to update record set of domain to it.
 
 ## Key Features
-  - Remove completly dependency on instance or private or Public IP.
-  - Automatic scale on high load
+  - Remove completely any dependency on instance or private or Public IP.
+  - Automatically scale on high load
   
 ## Note
   - You should manage your sub domains and distribute your room to them (easy task)
